@@ -43,12 +43,12 @@ sf::Color avg(const sf::Image &image, unsigned int samples = 2000)
     g /= static_cast<double>(samples);
     b /= static_cast<double>(samples);
 
-    const double darken = 1;
+    const double darken = 2.5;
     r /= darken;
     g /= darken;
     b /= darken;
 
-    return sf::Color(r*0.8, g, b);
+    return sf::Color(r, g, b);
 }
 
 void add_border(std::string file, sf::RenderTexture &render_texture)
@@ -123,6 +123,7 @@ int main(int argc, char **argv)
             }
             
             add_border(file, render_texture);
+            std::filesystem::remove(file);
         }
     }
 }
