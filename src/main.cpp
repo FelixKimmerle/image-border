@@ -1,14 +1,15 @@
-#include <iostream>
-#include <filesystem>
 #include <SFML/Graphics.hpp>
+#include <filesystem>
+#include <iostream>
 
-inline bool ends_with(std::string const & value, std::string const & ending)
+inline bool ends_with(std::string const& value, std::string const& ending)
 {
-    if (ending.size() > value.size()) return false;
+    if (ending.size() > value.size())
+        return false;
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-std::string rename(const std::string &filename)
+std::string rename(const std::string& filename)
 {
     auto pos = filename.find_last_of('.');
     if (pos == std::string::npos)
@@ -24,13 +25,13 @@ std::string rename(const std::string &filename)
 const unsigned int TARGET_WIDTH = 1080 * 4;
 const unsigned int TARGET_HEIGHT = 1080 * 4;
 
-sf::Color avg(const sf::Image &image, unsigned int samples = 2000)
+sf::Color avg(const sf::Image& image, unsigned int samples = 2000)
 {
     double r = 0;
     double g = 0;
     double b = 0;
 
-    for(unsigned int i = 0; i < samples; i++)
+    for (unsigned int i = 0; i < samples; i++)
     {
         unsigned int x = rand() % image.getSize().x;
         unsigned int y = rand() % image.getSize().y;
@@ -51,7 +52,7 @@ sf::Color avg(const sf::Image &image, unsigned int samples = 2000)
     return sf::Color(static_cast<std::uint8_t>(r), static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b));
 }
 
-bool add_border(const std::string &file, sf::RenderTexture &render_texture)
+bool add_border(const std::string& file, sf::RenderTexture& render_texture)
 {
 
     sf::Image image;
@@ -66,12 +67,11 @@ bool add_border(const std::string &file, sf::RenderTexture &render_texture)
     const unsigned int TARGET_MAX = x > y ? TARGET_WIDTH : TARGET_HEIGHT;
     const unsigned int TARGET_MIN = x < y ? TARGET_WIDTH : TARGET_HEIGHT;
 
-    const double BORDER = 100*4;
+    const double BORDER = 100 * 4;
     const double HALF_BORDER = BORDER / 2.0;
 
     std::cout << x << " " << y << std::endl;
-    
-    
+
     unsigned int max_size = std::max(image.getSize().x, image.getSize().y);
     double factor = (TARGET_MAX - BORDER) / static_cast<double>(max_size);
     unsigned int min_size = std::min(image.getSize().x, image.getSize().y);
@@ -109,7 +109,7 @@ bool add_border(const std::string &file, sf::RenderTexture &render_texture)
     return true;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     srand(time(0));
     sf::RenderTexture render_texture({TARGET_WIDTH, TARGET_HEIGHT}, sf::ContextSettings{});
@@ -127,12 +127,12 @@ int main(int argc, char **argv)
             if (pos != std::string::npos)
             {
                 std::string first = file.substr(0, pos);
-                if(ends_with(first, "_border"))
+                if (ends_with(first, "_border"))
                 {
                     continue;
                 }
             }
-            
+
             if (add_border(file, render_texture))
             {
                 std::filesystem::remove(file);
