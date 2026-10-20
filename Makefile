@@ -1,15 +1,17 @@
 TARGET_EXEC ?= border
 
-BUILD_DIR ?= ./build
+# Pick the compiler with e.g. `make release CXX=clang++` (defaults to g++).
+# Each compiler gets its own build directory so objects never mix.
+BUILD_ROOT ?= ./build
+BUILD_DIR ?= $(BUILD_ROOT)/$(notdir $(firstword $(CXX)))
 SRC_DIRS ?= src/
-CC := g++ -fopenmp
-LDFLAGS = -std=c++17 -lpthread -lsfml-graphics -lsfml-system
+LDFLAGS = -std=c++17 -lsfml-graphics -lsfml-system
 
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp)
 #OBJS := $(SRCS:%=%.o)
 #DEPS := $(OBJS:.o=.d)
 
-DEPS = $(shell find build/ -name *.d)
+DEPS = $(shell find $(BUILD_DIR) -name *.d 2>/dev/null)
 
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
@@ -41,26 +43,26 @@ release: $(RELEXE)
 
 $(RELEXE): $(RELOBJS)
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(RELOBJS) -o $@ $(LDFLAGS)
+	$(CXX) $(RELOBJS) -o $@ $(LDFLAGS)
 
 $(RELDIR)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(RELCFLAGS) -c $< -o $@
+	$(CXX) $(RELCFLAGS) -c $< -o $@
 
 
 debug: $(DBGEXE)
 
 $(DBGEXE): $(DBGOBJS)
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(DBGOBJS) -o $@ $(LDFLAGS)
+	$(CXX) $(DBGOBJS) -o $@ $(LDFLAGS)
 
 $(DBGDIR)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(DBGCFLAGS) -c $< -o $@
+	$(CXX) $(DBGCFLAGS) -c $< -o $@
 
 
 clean:
-	$(RM) -r $(BUILD_DIR)
+	$(RM) -r $(BUILD_ROOT)
 
 run:
 	$(RELEXE)

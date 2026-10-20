@@ -34,7 +34,7 @@ sf::Color avg(const sf::Image &image, unsigned int samples = 2000)
     {
         unsigned int x = rand() % image.getSize().x;
         unsigned int y = rand() % image.getSize().y;
-        sf::Color color = image.getPixel(x,y);
+        sf::Color color = image.getPixel({x, y});
         r += color.r;
         g += color.g;
         b += color.b;
@@ -48,14 +48,18 @@ sf::Color avg(const sf::Image &image, unsigned int samples = 2000)
     g /= darken;
     b /= darken;
 
-    return sf::Color(r, g, b);
+    return sf::Color(static_cast<std::uint8_t>(r), static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b));
 }
 
-void add_border(std::string file, sf::RenderTexture &render_texture)
+bool add_border(const std::string &file, sf::RenderTexture &render_texture)
 {
 
     sf::Image image;
-    image.loadFromFile(file);
+    if (!image.loadFromFile(file))
+    {
+        std::cout << "Failed to load " << file << std::endl;
+        return false;
+    }
     unsigned int x = image.getSize().x;
     unsigned int y = image.getSize().y;
 
@@ -78,30 +82,37 @@ void add_border(std::string file, sf::RenderTexture &render_texture)
     sf::Color clear_color = avg(image);
     render_texture.clear(clear_color);
     sf::Texture texture;
-    texture.loadFromImage(image);
+    if (!texture.loadFromImage(image))
+    {
+        std::cout << "Failed to create texture for " << file << std::endl;
+        return false;
+    }
     texture.setSmooth(true);
     sf::Sprite sprite(texture);
-    sprite.setScale(factor, factor);
+    sprite.setScale({static_cast<float>(factor), static_cast<float>(factor)});
     if (x > y)
     {
-        sprite.setPosition(HALF_BORDER, offset);
+        sprite.setPosition({static_cast<float>(HALF_BORDER), static_cast<float>(offset)});
     }
     else
     {
-        sprite.setPosition(offset, HALF_BORDER);
+        sprite.setPosition({static_cast<float>(offset), static_cast<float>(HALF_BORDER)});
     }
     render_texture.draw(sprite);
     render_texture.display();
     sf::Image rendered = render_texture.getTexture().copyToImage();
-    rendered.saveToFile(rename(file));
+    if (!rendered.saveToFile(rename(file)))
+    {
+        std::cout << "Failed to save " << rename(file) << std::endl;
+        return false;
+    }
+    return true;
 }
 
 int main(int argc, char **argv)
 {
     srand(time(0));
-    sf::ContextSettings cs(0, 0, 0);
-    sf::RenderTexture render_texture;
-    render_texture.create(TARGET_WIDTH, TARGET_HEIGHT, cs);
+    sf::RenderTexture render_texture({TARGET_WIDTH, TARGET_HEIGHT}, sf::ContextSettings{});
     for (int i = 1; i < argc; i++)
     {
         std::string file(argv[i]);
@@ -122,8 +133,10 @@ int main(int argc, char **argv)
                 }
             }
             
-            add_border(file, render_texture);
-            std::filesystem::remove(file);
+            if (add_border(file, render_texture))
+            {
+                std::filesystem::remove(file);
+            }
         }
     }
 }
