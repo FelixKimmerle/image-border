@@ -1,9 +1,7 @@
 TARGET_EXEC ?= border
 
 # Pick the compiler with e.g. `make release CXX=clang++` (defaults to g++).
-# Each compiler gets its own build directory so objects never mix.
-BUILD_ROOT ?= ./build
-BUILD_DIR ?= $(BUILD_ROOT)/$(notdir $(firstword $(CXX)))
+BUILD_DIR ?= ./build
 SRC_DIRS ?= src/
 LDFLAGS = -std=c++17 -lsfml-graphics -lsfml-system
 
@@ -62,7 +60,7 @@ $(DBGDIR)/%.cpp.o: %.cpp
 
 
 clean:
-	$(RM) -r $(BUILD_ROOT)
+	$(RM) -r $(BUILD_DIR)
 
 run:
 	$(RELEXE)

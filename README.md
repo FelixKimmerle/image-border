@@ -48,20 +48,20 @@ sudo pacman -S sfml        # Arch
 git clone https://github.com/FelixKimmerle/image-border.git
 cd image-border
 make release
-./build/g++/release/border photo1.jpg photo2.jpg
+./build/release/border photo1.jpg photo2.jpg
 ```
 
-To build with a different compiler, pass it to make. Each compiler gets its own folder under `build/`:
+To build with a different compiler, pass it to make (run `make clean` first when switching):
 
 ```bash
+make clean
 make release CXX=clang++
-./build/clang++/release/border photo1.jpg
 ```
 
 Or process a whole folder:
 
 ```bash
-./build/g++/release/border /path/to/photos/*.jpg
+./build/release/border /path/to/photos/*.jpg
 ```
 
 ---
